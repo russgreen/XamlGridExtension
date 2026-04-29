@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidXamlGridExtensionPackage">
+
+    <Groups>
+      <Group guid="guidXamlGridExtensionCmdSet" id="XamlGridEditorGroup" priority="0x0600">
+        <!-- Attached to the XAML editor context menu -->
+        <Parent guid="CMDSETID_HtmEdGrp" id="IDMX_HTM_SOURCE_HTML" />
+      </Group>
+    </Groups>
+
+    <Menus>
+      <Menu guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenu" priority="0x0100" type="Menu">
+        <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridEditorGroup" />
+        <Strings>
+          <ButtonText>Grid</ButtonText>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <Buttons>
+
+      <Button guid="guidXamlGridExtensionCmdSet" id="InsertRowCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Insert Row</ButtonText>
+          <ToolTipText>Insert a row at the caret position in the Grid</ToolTipText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidXamlGridExtensionCmdSet" id="RemoveRowCommandId" priority="0x0200" type="Button">
+        <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Remove Row</ButtonText>
+          <ToolTipText>Remove the row at the caret position from the Grid</ToolTipText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidXamlGridExtensionCmdSet" id="InsertColumnCommandId" priority="0x0300" type="Button">
+        <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Insert Column</ButtonText>
+          <ToolTipText>Insert a column at the caret position in the Grid</ToolTipText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidXamlGridExtensionCmdSet" id="RemoveColumnCommandId" priority="0x0400" type="Button">
+        <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Remove Column</ButtonText>
+          <ToolTipText>Remove the column at the caret position from the Grid</ToolTipText>
+        </Strings>
+      </Button>
+
+    </Buttons>
+
+  </Commands>
+
+  <CommandPlacements>
+    <CommandPlacement guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenuGroup" priority="0x0100">
+      <Parent guid="guidXamlGridExtensionCmdSet" id="XamlGridSubMenu" />
+    </CommandPlacement>
+  </CommandPlacements>
+
+  <Symbols>
+    <GuidSymbol name="guidXamlGridExtensionPackage" value="{6B1A3A2F-8C4E-4D1B-A9F2-3C5E7D8B2F1A}" />
+
+    <GuidSymbol name="guidXamlGridExtensionCmdSet" value="{A2B3C4D5-E6F7-4A8B-9C0D-1E2F3A4B5C6D}">
+      <IDSymbol name="XamlGridEditorGroup"   value="0x1010" />
+      <IDSymbol name="XamlGridSubMenu"        value="0x1020" />
+      <IDSymbol name="XamlGridSubMenuGroup"   value="0x1030" />
+      <IDSymbol name="InsertRowCommandId"     value="0x0100" />
+      <IDSymbol name="RemoveRowCommandId"     value="0x0200" />
+      <IDSymbol name="InsertColumnCommandId"  value="0x0300" />
+      <IDSymbol name="RemoveColumnCommandId"  value="0x0400" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>
