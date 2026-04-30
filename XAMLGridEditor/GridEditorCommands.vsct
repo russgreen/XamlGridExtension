@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+
+  <Commands package="guidXAMLGridEditorPackage">
+
+    <Groups>
+      <!-- Context-menu group that appears in the XAML editor right-click menu -->
+      <Group guid="guidXAMLGridEditorCmdSet" id="XamlGridContextMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+
+      <!-- Menu group for the View menu entry (opens tool window) -->
+      <Group guid="guidXAMLGridEditorCmdSet" id="XamlGridViewMenuGroup" priority="0x0100">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
+      </Group>
+    </Groups>
+
+    <Menus>
+      <!-- Sub-menu inside the XAML editor context menu -->
+      <Menu guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenu" priority="0x0100" type="Menu">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridContextMenuGroup"/>
+        <Strings>
+          <ButtonText>XAML Grid Editor</ButtonText>
+        </Strings>
+      </Menu>
+
+      <!-- Group inside the sub-menu -->
+    </Menus>
+
+    <Groups>
+      <Group guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenuGroup" priority="0x0000">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenu"/>
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <!-- Insert Row Before -->
+      <Button guid="guidXAMLGridEditorCmdSet" id="cmdidInsertRowBefore" priority="0x0100" type="Button">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenuGroup"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Insert Row Before</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Insert Column Before -->
+      <Button guid="guidXAMLGridEditorCmdSet" id="cmdidInsertColumnBefore" priority="0x0101" type="Button">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenuGroup"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Insert Column Before</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Remove Row -->
+      <Button guid="guidXAMLGridEditorCmdSet" id="cmdidRemoveRow" priority="0x0102" type="Button">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenuGroup"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Remove Current Row</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Remove Column -->
+      <Button guid="guidXAMLGridEditorCmdSet" id="cmdidRemoveColumn" priority="0x0103" type="Button">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridSubMenuGroup"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Remove Current Column</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Open Tool Window -->
+      <Button guid="guidXAMLGridEditorCmdSet" id="cmdidOpenToolWindow" priority="0x0100" type="Button">
+        <Parent guid="guidXAMLGridEditorCmdSet" id="XamlGridViewMenuGroup"/>
+        <Strings>
+          <ButtonText>XAML Grid Editor</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="guidXAMLGridEditorPackage" value="{ebcb8c35-c183-43bf-92e8-b0264e7410a8}"/>
+
+    <GuidSymbol name="guidXAMLGridEditorCmdSet" value="{c1a2b3c4-d5e6-7f8a-9b0c-d1e2f3a4b5c6}">
+      <IDSymbol name="XamlGridContextMenuGroup"  value="0x1000"/>
+      <IDSymbol name="XamlGridViewMenuGroup"     value="0x1001"/>
+      <IDSymbol name="XamlGridSubMenu"           value="0x1100"/>
+      <IDSymbol name="XamlGridSubMenuGroup"      value="0x1101"/>
+      <IDSymbol name="cmdidInsertRowBefore"      value="0x0100"/>
+      <IDSymbol name="cmdidInsertColumnBefore"   value="0x0101"/>
+      <IDSymbol name="cmdidRemoveRow"            value="0x0102"/>
+      <IDSymbol name="cmdidRemoveColumn"         value="0x0103"/>
+      <IDSymbol name="cmdidOpenToolWindow"       value="0x0104"/>
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>

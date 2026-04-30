@@ -1,4 +1,9 @@
 <Solution>
-  <Project Path="XamlGridExtension/XamlGridExtension.csproj" />
+  <Project Path="XAMLGridEditor/XAMLGridEditor.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="XAMLGridEditor.Core/XAMLGridEditor.Core.csproj" />
+  <Project Path="XAMLGridEditor.Tests/XAMLGridEditor.Tests.csproj" />
+  <Project Path="TestProjects/WpfApp1/WpfApp1/WpfApp1.csproj" />
 
 </Solution>

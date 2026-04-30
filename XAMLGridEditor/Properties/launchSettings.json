@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "VS 2022 Enterprise (Exp)": {
+      "commandName": "Executable",
+      "executablePath": "%ProgramW6432%\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\devenv.exe",
+      "commandLineArgs": "/rootsuffix Exp"
+    },
+    "VS 2022 Professional (Exp)": {
+      "commandName": "Executable",
+      "executablePath": "%ProgramW6432%\\Microsoft Visual Studio\\2022\\Professional\\Common7\\IDE\\devenv.exe",
+      "commandLineArgs": "/rootsuffix Exp"
+    },
+    "VS 2022 Community (Exp)": {
+      "commandName": "Executable",
+      "executablePath": "%ProgramW6432%\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe",
+      "commandLineArgs": "/rootsuffix Exp"
+    }
+  }
+}

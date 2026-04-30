@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>14</LangVersion>
+    <UseWpf>true</UseWpf>
+
+    <!-- VSIX settings -->
+    <VSSDKBuildToolsAutoSetup>true</VSSDKBuildToolsAutoSetup>
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <UseCodebase>true</UseCodebase>
+  </PropertyGroup>
+
+  <!-- Deploy to experimental instance only when building inside Visual Studio in Debug -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' AND '$(BuildingInsideVisualStudio)' == 'true'">
+    <DeployExtension>true</DeployExtension>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectCapability Include="CreateVsixContainer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VSCTCompile Include="GridEditorCommands.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+
+  <!-- XAML UserControl is auto-discovered via UseWpf; explicit Page item removed to avoid duplicates -->
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Design" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XAMLGridEditor.Core\XAMLGridEditor.Core.csproj" />
+  </ItemGroup>
+
+</Project>
