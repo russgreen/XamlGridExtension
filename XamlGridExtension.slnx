@@ -4,6 +4,5 @@
   </Project>
   <Project Path="XAMLGridEditor.Core/XAMLGridEditor.Core.csproj" />
   <Project Path="XAMLGridEditor.Tests/XAMLGridEditor.Tests.csproj" />
-  <Project Path="TestProjects/WpfApp1/WpfApp1/WpfApp1.csproj" />
 
 </Solution>

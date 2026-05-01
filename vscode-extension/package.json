@@ -1,0 +1,43 @@
+{
+  "name": "xaml-grid-editor",
+  "displayName": "XAML Grid Editor",
+  "description": "Visual sidebar editor for XAML Grid rows and columns — insert, remove and resize definitions with one click, with automatic child-attribute updates.",
+  "version": "0.1.0",
+  "publisher": "xaml-grid-editor",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onLanguage:xml",
+    "onView:xamlGridEditor.panel"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "xamlGridEditor.panel",
+          "name": "XAML Grid Editor"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "xml",
+        "extensions": [".xaml"]
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
