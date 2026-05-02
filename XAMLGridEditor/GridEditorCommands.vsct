@@ -10,7 +10,7 @@
     <Groups>
       <!-- Context-menu group that appears in the XAML editor right-click menu -->
       <Group guid="guidXAMLGridEditorCmdSet" id="XamlGridContextMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+		 <Parent guid="GuidVisualStudioXAMLWindowContextMenu" id="IDVisualStudioXAMLWindowContextMenu"/>
       </Group>
 
       <!-- Menu group for the View menu entry (opens tool window) -->
@@ -86,6 +86,10 @@
   </Commands>
 
   <Symbols>
+	  <GuidSymbol name="GuidVisualStudioXAMLWindowContextMenu" value="{4C87B692-1202-46AA-B64C-EF01FAEC53DA}">
+		  <IDSymbol name="IDVisualStudioXAMLWindowContextMenu" value="0x0103" />
+	  </GuidSymbol>
+	  
     <GuidSymbol name="guidXAMLGridEditorPackage" value="{ebcb8c35-c183-43bf-92e8-b0264e7410a8}"/>
 
     <GuidSymbol name="guidXAMLGridEditorCmdSet" value="{c1a2b3c4-d5e6-7f8a-9b0c-d1e2f3a4b5c6}">
