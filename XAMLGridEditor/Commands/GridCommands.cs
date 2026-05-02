@@ -50,10 +50,15 @@ internal abstract class GridCommandBase
     private void OnBeforeQueryStatus(object sender, EventArgs e)
     {
         ThreadHelper.ThrowIfNotOnUIThread();
-        if (sender is OleMenuCommand cmd)
+        if (sender is not OleMenuCommand cmd) return;
+        try
         {
             var grid = EditorService.GetCurrentGrid();
             cmd.Enabled = cmd.Visible = grid != null;
+        }
+        catch
+        {
+            cmd.Enabled = cmd.Visible = false;
         }
     }
 
