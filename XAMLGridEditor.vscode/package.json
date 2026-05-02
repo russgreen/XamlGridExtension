@@ -1,0 +1,99 @@
+{
+  "name": "xaml-grid-editor",
+  "displayName": "XAML Grid Editor",
+  "description": "Visual sidebar editor for XAML Grid rows and columns — insert, remove and resize definitions with one click, with automatic child-attribute updates.",
+  "version": "0.1.0",
+  "publisher": "xaml-grid-editor",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onLanguage:xml",
+    "onLanguage:xaml",
+    "onView:xamlGridEditor.panel"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "xamlGridEditor.panel",
+          "name": "XAML Grid Editor"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "xml",
+        "extensions": [".xaml"]
+      }
+    ],
+    "commands": [
+      {
+        "command": "xamlGridEditor.insertRowBefore",
+        "title": "Insert Row Before",
+        "category": "XAML Grid Editor"
+      },
+      {
+        "command": "xamlGridEditor.insertColumnBefore",
+        "title": "Insert Column Before",
+        "category": "XAML Grid Editor"
+      },
+      {
+        "command": "xamlGridEditor.removeCurrentRow",
+        "title": "Remove Current Row",
+        "category": "XAML Grid Editor"
+      },
+      {
+        "command": "xamlGridEditor.removeCurrentColumn",
+        "title": "Remove Current Column",
+        "category": "XAML Grid Editor"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "xamlGridEditor.submenu",
+        "label": "XAML Grid Editor"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "xamlGridEditor.submenu",
+          "group": "8_xamlgrid",
+          "when": "xamlGridEditor.hasGridAtCursor"
+        }
+      ],
+      "xamlGridEditor.submenu": [
+        {
+          "command": "xamlGridEditor.insertRowBefore",
+          "group": "1_rows@1"
+        },
+        {
+          "command": "xamlGridEditor.insertColumnBefore",
+          "group": "1_rows@2"
+        },
+        {
+          "command": "xamlGridEditor.removeCurrentRow",
+          "group": "2_remove@1"
+        },
+        {
+          "command": "xamlGridEditor.removeCurrentColumn",
+          "group": "2_remove@2"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
