@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="XAMLGridEditor.872b485d-4201-41e1-948c-62a2e5832f1b" Version="1.0" Language="en-US" Publisher="Russ Green" />
+    <Identity Id="XAMLGridEditor.872b485d-4201-41e1-948c-62a2e5832f1b" Version="1.1" Language="en-US" Publisher="Russ Green" />
     <DisplayName>XAML Grid Editor</DisplayName>
     <Description>Insert and remove rows and columns in XAML Grid elements. Automatically updates Grid.Row, Grid.Column, Grid.RowSpan and Grid.ColumnSpan attributes on child elements. Supports WPF, WinUI, Avalonia, MAUI and other XAML dialects.</Description>
   </Metadata>
