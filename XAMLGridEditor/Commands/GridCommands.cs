@@ -79,8 +79,10 @@ internal sealed class InsertRowBeforeCommand : GridCommandBase
         ThreadHelper.ThrowIfNotOnUIThread();
         var grid = EditorService.GetCurrentGrid();
         if (grid is null) return;
-        // Insert before the row that the caret is logically in (row 0 by default).
-        EditorService.InsertRowBefore(grid, 0);
+        // When the caret is on a specific RowDefinition, insert before that row;
+        // otherwise fall back to inserting before row 0.
+        int index = EditorService.GetDefinitionIndexAtCaret(grid, isRow: true);
+        EditorService.InsertRowBefore(grid, index < 0 ? 0 : index);
     }
 }
 
@@ -94,7 +96,10 @@ internal sealed class InsertColumnBeforeCommand : GridCommandBase
         ThreadHelper.ThrowIfNotOnUIThread();
         var grid = EditorService.GetCurrentGrid();
         if (grid is null) return;
-        EditorService.InsertColumnBefore(grid, 0);
+        // When the caret is on a specific ColumnDefinition, insert before that column;
+        // otherwise fall back to inserting before column 0.
+        int index = EditorService.GetDefinitionIndexAtCaret(grid, isRow: false);
+        EditorService.InsertColumnBefore(grid, index < 0 ? 0 : index);
     }
 }
 
