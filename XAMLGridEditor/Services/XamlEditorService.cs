@@ -214,6 +214,39 @@ internal sealed class XamlEditorService
         return GetActiveWpfTextView();
     }
 
+    /// <summary>
+    /// Returns the row or column index to insert before, based on the current caret position:
+    /// <list type="bullet">
+    ///   <item>Caret on a <c>RowDefinition</c> / <c>ColumnDefinition</c> → that definition's index.</item>
+    ///   <item>Caret on a child control with <c>Grid.Row</c> / <c>Grid.Column</c> → that child's row/column value.</item>
+    ///   <item>Otherwise → -1 (caller should fall back to a default).</item>
+    /// </list>
+    /// </summary>
+    public int GetDefinitionIndexAtCaret(GridInfo grid, bool isRow)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+        int? caret = GetCaretOffset();
+        if (caret is null) return -1;
+
+        // 1. Caret is directly on a definition element
+        var definitions = isRow ? grid.Rows : grid.Columns;
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            var def = definitions[i];
+            if (caret >= def.StartOffset && caret <= def.EndOffset)
+                return i;
+        }
+
+        // 2. Caret is on a child control — read its Grid.Row / Grid.Column
+        foreach (var child in grid.Children)
+        {
+            if (caret >= child.StartOffset && caret <= child.EndOffset)
+                return isRow ? child.Row : child.Column;
+        }
+
+        return -1;
+    }
+
     private (string? Xaml, int CaretOffset) GetXamlAndCaret()
     {
         ThreadHelper.ThrowIfNotOnUIThread();
