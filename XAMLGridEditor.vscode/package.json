@@ -2,8 +2,12 @@
   "name": "xaml-grid-editor",
   "displayName": "XAML Grid Editor",
   "description": "Visual sidebar editor for XAML Grid rows and columns — insert, remove and resize definitions with one click, with automatic child-attribute updates.",
-  "version": "0.1.0",
-  "publisher": "xaml-grid-editor",
+  "version": "1.3.0",
+  "publisher": "RussGreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/russgreen/XamlGridExtension"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
