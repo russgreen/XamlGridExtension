@@ -9,6 +9,13 @@ export interface GridDefinitionEntry {
     startOffset: number;
     /** Absolute character offset just after the end of this definition element. */
     endOffset: number;
+    /**
+     * True when this entry was parsed from a shorthand attribute on the Grid element
+     * (e.g. `RowDefinitions="*, Auto"`) rather than a child `<RowDefinition>` element.
+     * When true, startOffset/endOffset bracket the individual value within the
+     * attribute string so the manipulator can replace it directly.
+     */
+    isShorthand?: boolean;
 }
 
 export interface GridChildInfo {
@@ -35,6 +42,14 @@ export interface GridInfo {
     rows: GridDefinitionEntry[];
     columns: GridDefinitionEntry[];
     children: GridChildInfo[];
+    /** Offset of the first character of the RowDefinitions attribute value (inside quotes). */
+    shorthandRowDefsValueStart?: number;
+    /** Offset just after the last character of the RowDefinitions attribute value. */
+    shorthandRowDefsValueEnd?: number;
+    /** Offset of the first character of the ColumnDefinitions attribute value (inside quotes). */
+    shorthandColDefsValueStart?: number;
+    /** Offset just after the last character of the ColumnDefinitions attribute value. */
+    shorthandColDefsValueEnd?: number;
 }
 
 export function rowCount(grid: GridInfo): number {

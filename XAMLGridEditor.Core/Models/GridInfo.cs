@@ -27,4 +27,31 @@ public class GridInfo
 
     /// <summary>Number of columns (at least 1 even when no ColumnDefinitions are present).</summary>
     public int ColumnCount => Columns.Count == 0 ? 1 : Columns.Count;
+
+    // -----------------------------------------------------------------------
+    // Shorthand attribute syntax (e.g. RowDefinitions="*, Auto")
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// True when RowDefinitions were specified as an attribute on the Grid opening tag
+    /// rather than via child <c>&lt;Grid.RowDefinitions&gt;</c> elements.
+    /// </summary>
+    public bool HasShorthandRowDefinitions { get; set; }
+
+    /// <summary>
+    /// True when ColumnDefinitions were specified as an attribute on the Grid opening tag.
+    /// </summary>
+    public bool HasShorthandColumnDefinitions { get; set; }
+
+    /// <summary>Absolute offset of the first character of the RowDefinitions attribute value (inside the quotes).</summary>
+    public int ShorthandRowDefsValueStart { get; set; }
+
+    /// <summary>Absolute offset just after the last character of the RowDefinitions attribute value.</summary>
+    public int ShorthandRowDefsValueEnd { get; set; }
+
+    /// <summary>Absolute offset of the first character of the ColumnDefinitions attribute value (inside the quotes).</summary>
+    public int ShorthandColDefsValueStart { get; set; }
+
+    /// <summary>Absolute offset just after the last character of the ColumnDefinitions attribute value.</summary>
+    public int ShorthandColDefsValueEnd { get; set; }
 }

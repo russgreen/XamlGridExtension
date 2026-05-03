@@ -13,4 +13,14 @@ public class GridDefinitionEntry
 
     /// <summary>Absolute character offset just after the end of this definition element.</summary>
     public int EndOffset { get; set; }
+
+    /// <summary>
+    /// True when this entry was parsed from a shorthand attribute on the Grid element
+    /// (e.g. <c>RowDefinitions="*, Auto"</c>) rather than a child
+    /// <c>&lt;RowDefinition&gt;</c> element.
+    /// When true, <see cref="StartOffset"/> and <see cref="EndOffset"/> bracket the
+    /// individual value within the attribute string; the manipulator replaces that
+    /// span directly instead of searching for an XML attribute.
+    /// </summary>
+    public bool IsShorthand { get; set; }
 }

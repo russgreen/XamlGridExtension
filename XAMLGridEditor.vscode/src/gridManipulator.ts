@@ -72,6 +72,14 @@ function insertDefinitionEntry(
     const containerTag = isRow ? 'Grid.RowDefinitions' : 'Grid.ColumnDefinitions';
     const newEntry = `<${entryTag} ${sizeAttr}="${size}"/>`;
 
+    // Shorthand attribute syntax — update the comma-separated value in-place.
+    const isShorthand = isRow
+        ? grid.shorthandRowDefsValueStart !== undefined
+        : grid.shorthandColDefsValueStart !== undefined;
+    if (isShorthand) {
+        return insertShorthandDefinition(xaml, grid, isRow, beforeIndex, size);
+    }
+
     if (definitions.length === 0) {
         return insertDefinitionsBlock(xaml, grid, containerTag, newEntry);
     }
@@ -101,6 +109,15 @@ function insertDefinitionsBlock(xaml: string, grid: GridInfo, containerTag: stri
 function removeDefinitionEntry(xaml: string, grid: GridInfo, isRow: boolean, removeIndex: number): string {
     const definitions = isRow ? grid.rows : grid.columns;
     if (definitions.length === 0 || removeIndex >= definitions.length) { return xaml; }
+
+    // Shorthand attribute syntax — update the comma-separated value in-place.
+    const isShorthand = isRow
+        ? grid.shorthandRowDefsValueStart !== undefined
+        : grid.shorthandColDefsValueStart !== undefined;
+    if (isShorthand) {
+        return removeShorthandDefinition(xaml, grid, isRow, removeIndex);
+    }
+
     const entry = definitions[removeIndex];
     const lineStart = findLineStart(xaml, entry.startOffset);
     const lineEnd = findLineEnd(xaml, entry.endOffset - 1);
@@ -115,6 +132,12 @@ function setDefinitionSize(
     xaml: string, entry: GridDefinitionEntry, attrName: string, newValue: string
 ): string {
     if (!newValue.trim()) { return xaml; }
+
+    // Shorthand: startOffset/endOffset IS the value — replace directly.
+    if (entry.isShorthand) {
+        return xaml.substring(0, entry.startOffset) + newValue + xaml.substring(entry.endOffset);
+    }
+
     const [s, e] = findAttributeValueSpan(xaml, entry.startOffset, attrName);
     if (s >= 0) {
         return xaml.substring(0, s) + newValue + xaml.substring(e);
@@ -223,6 +246,37 @@ function adjustAttributesInternal(
         result = result.substring(0, start) + newText + result.substring(end);
     }
     return { xaml: result, warnings };
+}
+
+// ---------------------------------------------------------------------------
+// Shorthand attribute manipulation helpers
+// ---------------------------------------------------------------------------
+
+function insertShorthandDefinition(
+    xaml: string, grid: GridInfo, isRow: boolean, beforeIndex: number, size: string
+): string {
+    const valueStart = isRow ? grid.shorthandRowDefsValueStart! : grid.shorthandColDefsValueStart!;
+    const valueEnd   = isRow ? grid.shorthandRowDefsValueEnd!   : grid.shorthandColDefsValueEnd!;
+
+    const parts = xaml.substring(valueStart, valueEnd).split(',').map(p => p.trim());
+    parts.splice(Math.min(beforeIndex, parts.length), 0, size);
+
+    const newValue = parts.join(', ');
+    return xaml.substring(0, valueStart) + newValue + xaml.substring(valueEnd);
+}
+
+function removeShorthandDefinition(
+    xaml: string, grid: GridInfo, isRow: boolean, removeIndex: number
+): string {
+    const valueStart = isRow ? grid.shorthandRowDefsValueStart! : grid.shorthandColDefsValueStart!;
+    const valueEnd   = isRow ? grid.shorthandRowDefsValueEnd!   : grid.shorthandColDefsValueEnd!;
+
+    const parts = xaml.substring(valueStart, valueEnd).split(',').map(p => p.trim());
+    if (removeIndex < 0 || removeIndex >= parts.length) { return xaml; }
+    parts.splice(removeIndex, 1);
+
+    const newValue = parts.join(', ');
+    return xaml.substring(0, valueStart) + newValue + xaml.substring(valueEnd);
 }
 
 // ---------------------------------------------------------------------------
