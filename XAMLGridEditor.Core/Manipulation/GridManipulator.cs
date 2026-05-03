@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace XAMLGridEditor.Core;
@@ -144,6 +145,10 @@ public static class GridManipulator
     {
         if (string.IsNullOrWhiteSpace(newValue)) return xaml;
 
+        // Shorthand: startOffset..endOffset IS the value – replace directly.
+        if (entry.IsShorthand)
+            return xaml.Substring(0, entry.StartOffset) + newValue + xaml.Substring(entry.EndOffset);
+
         string elementText = xaml.Substring(entry.StartOffset, entry.EndOffset - entry.StartOffset);
 
         // Try to replace an existing attribute value.
@@ -173,6 +178,11 @@ public static class GridManipulator
         string sizeAttr = isRow ? "Height" : "Width";
         string entryTag = isRow ? "RowDefinition" : "ColumnDefinition";
         string containerTag = isRow ? "Grid.RowDefinitions" : "Grid.ColumnDefinitions";
+
+        // Shorthand attribute syntax — update the comma-separated value in-place.
+        bool isShorthand = isRow ? grid.HasShorthandRowDefinitions : grid.HasShorthandColumnDefinitions;
+        if (isShorthand)
+            return InsertShorthandDefinition(xaml, grid, isRow, beforeIndex, size);
 
         string newEntry = $"<{entryTag} {sizeAttr}=\"{size}\"/>";
 
@@ -224,6 +234,11 @@ public static class GridManipulator
         if (definitions.Count == 0 || removeIndex >= definitions.Count)
             return xaml;
 
+        // Shorthand attribute syntax — update the comma-separated value in-place.
+        bool isShorthand = isRow ? grid.HasShorthandRowDefinitions : grid.HasShorthandColumnDefinitions;
+        if (isShorthand)
+            return RemoveShorthandDefinition(xaml, grid, isRow, removeIndex);
+
         var entry = definitions[removeIndex];
 
         // Find the full line containing this entry (including leading whitespace and the newline).
@@ -231,6 +246,53 @@ public static class GridManipulator
         int lineEnd = FindLineEnd(xaml, entry.EndOffset - 1);
 
         return xaml.Substring(0, lineStart) + xaml.Substring(lineEnd);
+    }
+
+    // -----------------------------------------------------------------------
+    // Shorthand attribute manipulation helpers
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Inserts a new size value into a shorthand <c>RowDefinitions</c> or
+    /// <c>ColumnDefinitions</c> attribute at the specified index.
+    /// </summary>
+    private static string InsertShorthandDefinition(
+        string xaml, GridInfo grid, bool isRow, int beforeIndex, string size)
+    {
+        int valueStart = isRow ? grid.ShorthandRowDefsValueStart : grid.ShorthandColDefsValueStart;
+        int valueEnd   = isRow ? grid.ShorthandRowDefsValueEnd   : grid.ShorthandColDefsValueEnd;
+
+        var parts = xaml.Substring(valueStart, valueEnd - valueStart)
+                        .Split(',')
+                        .Select(p => p.Trim())
+                        .ToList();
+
+        parts.Insert(Math.Min(beforeIndex, parts.Count), size);
+
+        string newValue = string.Join(", ", parts);
+        return xaml.Substring(0, valueStart) + newValue + xaml.Substring(valueEnd);
+    }
+
+    /// <summary>
+    /// Removes the size value at the specified index from a shorthand
+    /// <c>RowDefinitions</c> or <c>ColumnDefinitions</c> attribute.
+    /// </summary>
+    private static string RemoveShorthandDefinition(
+        string xaml, GridInfo grid, bool isRow, int removeIndex)
+    {
+        int valueStart = isRow ? grid.ShorthandRowDefsValueStart : grid.ShorthandColDefsValueStart;
+        int valueEnd   = isRow ? grid.ShorthandRowDefsValueEnd   : grid.ShorthandColDefsValueEnd;
+
+        var parts = xaml.Substring(valueStart, valueEnd - valueStart)
+                        .Split(',')
+                        .Select(p => p.Trim())
+                        .ToList();
+
+        if (removeIndex < 0 || removeIndex >= parts.Count) return xaml;
+        parts.RemoveAt(removeIndex);
+
+        string newValue = string.Join(", ", parts);
+        return xaml.Substring(0, valueStart) + newValue + xaml.Substring(valueEnd);
     }
 
     // -----------------------------------------------------------------------

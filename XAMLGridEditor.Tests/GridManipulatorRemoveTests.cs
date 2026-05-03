@@ -198,6 +198,68 @@ public class GridManipulatorRemoveTests
     }
 
     // -----------------------------------------------------------------------
+    // Shorthand attribute syntax (e.g. RowDefinitions="Auto, *, 100")
+    // -----------------------------------------------------------------------
+
+    private const string ShorthandThreeRow = """
+        <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+            <Grid RowDefinitions="Auto, *, 100">
+                <TextBlock Grid.Row="0" Text="R0"/>
+                <TextBlock Grid.Row="1" Text="R1"/>
+                <TextBlock Grid.Row="2" Text="R2"/>
+            </Grid>
+        </Window>
+        """;
+
+    private static GridInfo GetShorthandGrid(string xaml)
+    {
+        int offset = xaml.IndexOf("<Grid ");
+        return XamlGridParser.FindGridAtOffset(xaml, offset + 2)!;
+    }
+
+    [TestMethod]
+    public void RemoveRow_ShorthandSyntax_RemovesValueFromAttribute()
+    {
+        var grid = GetShorthandGrid(ShorthandThreeRow);
+        string result = GridManipulator.RemoveRow(ShorthandThreeRow, grid, removeIndex: 1, out _);
+
+        var newGrid = GetShorthandGrid(result);
+        Assert.AreEqual(2, newGrid.Rows.Count);
+        Assert.IsTrue(newGrid.HasShorthandRowDefinitions);
+        Assert.AreEqual("Auto", newGrid.Rows[0].Size);
+        Assert.AreEqual("100",  newGrid.Rows[1].Size);
+    }
+
+    [TestMethod]
+    public void RemoveRow_ShorthandSyntax_ShiftsChildAttributes()
+    {
+        var grid = GetShorthandGrid(ShorthandThreeRow);
+        string result = GridManipulator.RemoveRow(ShorthandThreeRow, grid, removeIndex: 0, out _);
+
+        // R1 moves to row 0, R2 to row 1.
+        AssertContainsAttribute(result, "Grid.Row=\"0\"");
+        AssertContainsAttribute(result, "Grid.Row=\"1\"");
+    }
+
+    [TestMethod]
+    public void RemoveRow_ShorthandOnlyOneRow_ReturnsWarning()
+    {
+        const string xaml = """
+            <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+                <Grid RowDefinitions="*">
+                    <TextBlock Grid.Row="0" Text="Only"/>
+                </Grid>
+            </Window>
+            """;
+
+        var grid = GetShorthandGrid(xaml);
+        string result = GridManipulator.RemoveRow(xaml, grid, removeIndex: 0, out var warnings);
+
+        Assert.AreEqual(xaml, result);
+        Assert.IsTrue(warnings.Count > 0);
+    }
+
+    // -----------------------------------------------------------------------
     // Multi-dialect: MAUI namespace
     // -----------------------------------------------------------------------
 

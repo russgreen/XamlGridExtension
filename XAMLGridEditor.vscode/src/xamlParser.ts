@@ -254,6 +254,80 @@ function findDirectChildren(xaml: string, contentStart: number, contentEnd: numb
 // Grid element parsing
 // ---------------------------------------------------------------------------
 
+/**
+ * Finds the [start, end) offsets of the *value* of a named attribute within
+ * the tag text that runs from tagStart to tagEnd. Returns null when not found.
+ */
+function findAttrValueInTag(
+    xaml: string, tagStart: number, tagEnd: number, attrName: string
+): [number, number] | null {
+    let i = tagStart;
+    while (i < tagEnd) {
+        const idx = xaml.indexOf(attrName, i);
+        if (idx < 0 || idx >= tagEnd) { return null; }
+
+        // Must be preceded by whitespace or '<'
+        const prev = idx > 0 ? xaml[idx - 1] : '<';
+        if (!/[\s<]/.test(prev)) { i = idx + 1; continue; }
+
+        // Must be followed by optional whitespace then '='
+        let j = idx + attrName.length;
+        while (j < tagEnd && (xaml[j] === ' ' || xaml[j] === '\t')) { j++; }
+        if (j >= tagEnd || xaml[j] !== '=') { i = idx + 1; continue; }
+        j++; // skip '='
+        while (j < tagEnd && (xaml[j] === ' ' || xaml[j] === '\t')) { j++; }
+        if (j >= tagEnd) { return null; }
+
+        const quote = xaml[j];
+        if (quote !== '"' && quote !== "'") { i = idx + 1; continue; }
+        j++; // skip opening quote
+        const valStart = j;
+        while (j < tagEnd && xaml[j] !== quote) { j++; }
+        return [valStart, j];
+    }
+    return null;
+}
+
+/**
+ * Parses a shorthand RowDefinitions or ColumnDefinitions attribute on the Grid
+ * element and populates info.rows / info.columns plus the span properties.
+ */
+function parseShorthandDefinitions(
+    xaml: string, gridStart: number, tagEnd: number, isRow: boolean, info: GridInfo
+): void {
+    const attrName = isRow ? 'RowDefinitions' : 'ColumnDefinitions';
+    const span = findAttrValueInTag(xaml, gridStart, tagEnd, attrName);
+    if (!span) { return; }
+
+    const [valueStart, valueEnd] = span;
+    const fullValue = xaml.substring(valueStart, valueEnd);
+
+    if (isRow) {
+        info.shorthandRowDefsValueStart = valueStart;
+        info.shorthandRowDefsValueEnd = valueEnd;
+    } else {
+        info.shorthandColDefsValueStart = valueStart;
+        info.shorthandColDefsValueEnd = valueEnd;
+    }
+
+    let currentOffset = valueStart;
+    for (const part of fullValue.split(',')) {
+        const leading = part.length - part.trimStart().length;
+        const trailing = part.length - part.trimEnd().length;
+        const size = part.trim() || '*';
+
+        const entry: GridDefinitionEntry = {
+            size,
+            startOffset: currentOffset + leading,
+            endOffset: currentOffset + part.length - trailing,
+            isShorthand: true,
+        };
+
+        if (isRow) { info.rows.push(entry); } else { info.columns.push(entry); }
+        currentOffset += part.length + 1; // +1 for the comma
+    }
+}
+
 function parseGridElement(xaml: string, gridStart: number): GridInfo | null {
     const tag = scanOpenTag(xaml, gridStart);
     if (!tag) { return null; }
@@ -296,6 +370,15 @@ function parseGridElement(xaml: string, gridStart: number): GridInfo | null {
             // Regular child element (skip property elements like Grid.Background)
             info.children.push(buildChildInfo(child));
         }
+    }
+
+    // Shorthand attribute syntax: RowDefinitions="*,Auto" / ColumnDefinitions="*,200"
+    // Only used when no child element definitions were found (prefer element form).
+    if (info.rows.length === 0 && tag.attributes.has('RowDefinitions')) {
+        parseShorthandDefinitions(xaml, gridStart, tag.tagEnd, true, info);
+    }
+    if (info.columns.length === 0 && tag.attributes.has('ColumnDefinitions')) {
+        parseShorthandDefinitions(xaml, gridStart, tag.tagEnd, false, info);
     }
 
     return info;

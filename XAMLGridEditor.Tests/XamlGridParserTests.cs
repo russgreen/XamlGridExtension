@@ -195,4 +195,82 @@ public class XamlGridParserTests
         Assert.AreEqual(1, grids.Count);
         Assert.AreEqual(2, grids[0].Rows.Count);
     }
+
+    // -----------------------------------------------------------------------
+    // Shorthand attribute syntax (e.g. RowDefinitions="*, Auto")
+    // -----------------------------------------------------------------------
+
+    private const string ShorthandXaml = """
+        <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+            <Grid Margin="10"
+                  RowDefinitions="*, Auto"
+                  ColumnDefinitions="*, 200">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="A"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="B"/>
+            </Grid>
+        </Window>
+        """;
+
+    [TestMethod]
+    public void ParseAllGrids_ShorthandSyntax_ParsesRowsAndColumns()
+    {
+        var grids = XamlGridParser.ParseAllGrids(ShorthandXaml);
+        Assert.AreEqual(1, grids.Count);
+        var grid = grids[0];
+
+        Assert.IsTrue(grid.HasShorthandRowDefinitions, "Should detect shorthand row definitions.");
+        Assert.IsTrue(grid.HasShorthandColumnDefinitions, "Should detect shorthand column definitions.");
+        Assert.AreEqual(2, grid.Rows.Count);
+        Assert.AreEqual(2, grid.Columns.Count);
+    }
+
+    [TestMethod]
+    public void ParseAllGrids_ShorthandSyntax_ParsesCorrectSizes()
+    {
+        var grids = XamlGridParser.ParseAllGrids(ShorthandXaml);
+        var grid = grids[0];
+
+        Assert.AreEqual("*",    grid.Rows[0].Size);
+        Assert.AreEqual("Auto", grid.Rows[1].Size);
+        Assert.AreEqual("*",    grid.Columns[0].Size);
+        Assert.AreEqual("200",  grid.Columns[1].Size);
+    }
+
+    [TestMethod]
+    public void ParseAllGrids_ShorthandSyntax_EntriesAreMarkedShorthand()
+    {
+        var grids = XamlGridParser.ParseAllGrids(ShorthandXaml);
+        var grid = grids[0];
+
+        Assert.IsTrue(grid.Rows[0].IsShorthand);
+        Assert.IsTrue(grid.Rows[1].IsShorthand);
+        Assert.IsTrue(grid.Columns[0].IsShorthand);
+        Assert.IsTrue(grid.Columns[1].IsShorthand);
+    }
+
+    [TestMethod]
+    public void ParseAllGrids_ShorthandSyntax_OffsetsBracketValues()
+    {
+        var grids = XamlGridParser.ParseAllGrids(ShorthandXaml);
+        var grid = grids[0];
+
+        // Entry offsets should bracket the actual value text in the XAML.
+        Assert.AreEqual("*",    ShorthandXaml.Substring(grid.Rows[0].StartOffset, grid.Rows[0].EndOffset - grid.Rows[0].StartOffset));
+        Assert.AreEqual("Auto", ShorthandXaml.Substring(grid.Rows[1].StartOffset, grid.Rows[1].EndOffset - grid.Rows[1].StartOffset));
+        Assert.AreEqual("*",    ShorthandXaml.Substring(grid.Columns[0].StartOffset, grid.Columns[0].EndOffset - grid.Columns[0].StartOffset));
+        Assert.AreEqual("200",  ShorthandXaml.Substring(grid.Columns[1].StartOffset, grid.Columns[1].EndOffset - grid.Columns[1].StartOffset));
+    }
+
+    [TestMethod]
+    public void ParseAllGrids_ShorthandSyntax_ChildrenParsedCorrectly()
+    {
+        var grids = XamlGridParser.ParseAllGrids(ShorthandXaml);
+        var grid = grids[0];
+
+        Assert.AreEqual(2, grid.Children.Count);
+        var childA = grid.Children.Find(c => c.Row == 0 && c.Column == 0);
+        Assert.IsNotNull(childA);
+        var childB = grid.Children.Find(c => c.Row == 1 && c.Column == 1);
+        Assert.IsNotNull(childB);
+    }
 }

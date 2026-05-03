@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -95,7 +96,7 @@ public static class XamlGridParser
             EndOffset = gridEnd
         };
 
-        // RowDefinitions
+        // RowDefinitions – child element style
         var rowDefs = gridElement
             .Elements()
             .FirstOrDefault(e => e.Name.LocalName == "Grid.RowDefinitions");
@@ -109,7 +110,15 @@ public static class XamlGridParser
             }
         }
 
-        // ColumnDefinitions
+        // RowDefinitions – shorthand attribute style (e.g. RowDefinitions="*, Auto")
+        if (info.Rows.Count == 0 && gridElement.Attribute("RowDefinitions") != null)
+        {
+            int tagEnd = FindOpeningTagEnd(xaml, gridStart);
+            if (tagEnd >= 0)
+                ParseShorthandDefinitions(xaml, gridStart, tagEnd, isRow: true, info);
+        }
+
+        // ColumnDefinitions – child element style
         var colDefs = gridElement
             .Elements()
             .FirstOrDefault(e => e.Name.LocalName == "Grid.ColumnDefinitions");
@@ -121,6 +130,14 @@ public static class XamlGridParser
                 if (defEntry != null)
                     info.Columns.Add(defEntry);
             }
+        }
+
+        // ColumnDefinitions – shorthand attribute style
+        if (info.Columns.Count == 0 && gridElement.Attribute("ColumnDefinitions") != null)
+        {
+            int tagEnd = FindOpeningTagEnd(xaml, gridStart);
+            if (tagEnd >= 0)
+                ParseShorthandDefinitions(xaml, gridStart, tagEnd, isRow: false, info);
         }
 
         // Child elements (direct, excluding property elements like Grid.RowDefinitions)
@@ -223,6 +240,90 @@ public static class XamlGridParser
         // In XLinq, attached properties written as Grid.Row="1" have their
         // local name set to "Grid.Row" (the whole thing) and an empty namespace.
         return attr.Name.LocalName.StartsWith("Grid.", StringComparison.Ordinal);
+    }
+
+    // -----------------------------------------------------------------------
+    // Shorthand attribute helpers
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Returns the offset just after the '>' of the opening tag that starts at
+    /// <paramref name="elementOffset"/>, respecting quoted attribute values.
+    /// Returns -1 on failure.
+    /// </summary>
+    private static int FindOpeningTagEnd(string xaml, int elementOffset)
+    {
+        bool inQuote = false;
+        char quoteChar = '"';
+        for (int i = elementOffset; i < xaml.Length; i++)
+        {
+            char c = xaml[i];
+            if (inQuote) { if (c == quoteChar) inQuote = false; }
+            else
+            {
+                if (c == '"' || c == '\'') { inQuote = true; quoteChar = c; }
+                else if (c == '>') return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Parses a shorthand <c>RowDefinitions="…"</c> or <c>ColumnDefinitions="…"</c>
+    /// attribute on the Grid element and populates <paramref name="info"/>.
+    /// </summary>
+    private static void ParseShorthandDefinitions(
+        string xaml, int tagStart, int tagEnd, bool isRow, GridInfo info)
+    {
+        string attrName = isRow ? "RowDefinitions" : "ColumnDefinitions";
+
+        // Find the attribute value span using a regex over the opening tag text.
+        string tagText = xaml.Substring(tagStart, tagEnd - tagStart);
+        string escaped = Regex.Escape(attrName);
+        var m = Regex.Match(tagText,
+            $@"(?<=[<\s]){escaped}\s*=\s*(?<q>[""'])(?<val>[^""']*)(\k<q>)");
+        if (!m.Success) return;
+
+        var valGroup = m.Groups["val"];
+        int valueStart = tagStart + valGroup.Index;
+        int valueEnd = valueStart + valGroup.Length;
+        string fullValue = valGroup.Value;
+
+        if (isRow)
+        {
+            info.HasShorthandRowDefinitions = true;
+            info.ShorthandRowDefsValueStart = valueStart;
+            info.ShorthandRowDefsValueEnd = valueEnd;
+        }
+        else
+        {
+            info.HasShorthandColumnDefinitions = true;
+            info.ShorthandColDefsValueStart = valueStart;
+            info.ShorthandColDefsValueEnd = valueEnd;
+        }
+
+        // Parse each comma-separated value and record its absolute position.
+        int currentOffset = valueStart;
+        foreach (var part in fullValue.Split(','))
+        {
+            int leading = part.Length - part.TrimStart().Length;
+            int trailing = part.Length - part.TrimEnd().Length;
+            string size = part.Trim();
+            if (string.IsNullOrEmpty(size)) size = "*";
+
+            var entry = new GridDefinitionEntry
+            {
+                Size = size,
+                StartOffset = currentOffset + leading,
+                EndOffset = currentOffset + part.Length - trailing,
+                IsShorthand = true,
+            };
+
+            if (isRow) info.Rows.Add(entry);
+            else info.Columns.Add(entry);
+
+            currentOffset += part.Length + 1; // +1 for the comma separator
+        }
     }
 
     // -----------------------------------------------------------------------

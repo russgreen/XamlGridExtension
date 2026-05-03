@@ -245,6 +245,84 @@ public class GridManipulatorInsertTests
     }
 
     // -----------------------------------------------------------------------
+    // Shorthand attribute syntax (e.g. RowDefinitions="*, Auto")
+    // -----------------------------------------------------------------------
+
+    private const string ShorthandBase = """
+        <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+            <Grid Margin="10"
+                  RowDefinitions="Auto, *"
+                  ColumnDefinitions="Auto, *">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="A"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="B"/>
+            </Grid>
+        </Window>
+        """;
+
+    private static GridInfo GetShorthandGrid(string xaml)
+    {
+        int offset = xaml.IndexOf("<Grid ");
+        return XamlGridParser.FindGridAtOffset(xaml, offset + 2)!;
+    }
+
+    [TestMethod]
+    public void InsertRow_ShorthandSyntax_AddsValueToAttribute()
+    {
+        var grid = GetShorthandGrid(ShorthandBase);
+        string result = GridManipulator.InsertRow(ShorthandBase, grid, beforeIndex: 1);
+
+        var newGrid = GetShorthandGrid(result);
+        Assert.AreEqual(3, newGrid.Rows.Count);
+        Assert.IsTrue(newGrid.HasShorthandRowDefinitions, "Should remain shorthand syntax.");
+        // New entry inserted at index 1 with default '*'
+        Assert.AreEqual("Auto", newGrid.Rows[0].Size);
+        Assert.AreEqual("*",    newGrid.Rows[1].Size);
+        Assert.AreEqual("*",    newGrid.Rows[2].Size);
+    }
+
+    [TestMethod]
+    public void InsertRow_ShorthandSyntax_ShiftsChildAttributes()
+    {
+        var grid = GetShorthandGrid(ShorthandBase);
+        string result = GridManipulator.InsertRow(ShorthandBase, grid, beforeIndex: 0);
+
+        AssertAttributeValue(result, "TextBlock", "Grid.Row", 0, "1");
+        AssertAttributeValue(result, "TextBlock", "Grid.Row", 1, "2");
+    }
+
+    [TestMethod]
+    public void InsertColumn_ShorthandSyntax_AddsValueToAttribute()
+    {
+        var grid = GetShorthandGrid(ShorthandBase);
+        string result = GridManipulator.InsertColumn(ShorthandBase, grid, beforeIndex: 2, width: "100");
+
+        var newGrid = GetShorthandGrid(result);
+        Assert.AreEqual(3, newGrid.Columns.Count);
+        Assert.AreEqual("100", newGrid.Columns[2].Size);
+    }
+
+    [TestMethod]
+    public void SetRowSize_ShorthandSyntax_UpdatesAttributeValue()
+    {
+        var grid = GetShorthandGrid(ShorthandBase);
+        string result = GridManipulator.SetRowSize(ShorthandBase, grid, rowIndex: 0, newHeight: "200");
+
+        var newGrid = GetShorthandGrid(result);
+        Assert.AreEqual("200", newGrid.Rows[0].Size);
+        Assert.AreEqual("*",   newGrid.Rows[1].Size);
+    }
+
+    [TestMethod]
+    public void SetColumnSize_ShorthandSyntax_UpdatesAttributeValue()
+    {
+        var grid = GetShorthandGrid(ShorthandBase);
+        string result = GridManipulator.SetColumnSize(ShorthandBase, grid, colIndex: 1, newWidth: "Auto");
+
+        var newGrid = GetShorthandGrid(result);
+        Assert.AreEqual("Auto", newGrid.Columns[1].Size);
+    }
+
+    // -----------------------------------------------------------------------
     // Helper
     // -----------------------------------------------------------------------
 
