@@ -107,9 +107,7 @@ internal sealed class XamlEditorService
         string updated = manipulate(original);
         if (updated == original) return;
 
-        using var edit = textBuffer.CreateEdit();
-        edit.Replace(new Span(0, original.Length), updated);
-        edit.Apply();
+        ApplyBufferUpdatePreservingViewport(wpfTextView!, textBuffer, original, updated);
     }
 
     private void ApplyManipulationWithWarnings(int index, bool isRow)
@@ -144,9 +142,26 @@ internal sealed class XamlEditorService
 
         if (updated == original) return;
 
+        ApplyBufferUpdatePreservingViewport(wpfTextView!, textBuffer, original, updated);
+    }
+
+    private static void ApplyBufferUpdatePreservingViewport(
+        IWpfTextView wpfTextView,
+        ITextBuffer textBuffer,
+        string original,
+        string updated)
+    {
+        int caretPosition = wpfTextView.Caret.Position.BufferPosition.Position;
+
         using var edit = textBuffer.CreateEdit();
         edit.Replace(new Span(0, original.Length), updated);
         edit.Apply();
+
+        var newSnapshot = textBuffer.CurrentSnapshot;
+        int newCaretPosition = Math.Min(caretPosition, newSnapshot.Length);
+        var newCaretPoint = new SnapshotPoint(newSnapshot, newCaretPosition);
+        wpfTextView.Caret.MoveTo(newCaretPoint);
+        wpfTextView.ViewScroller.EnsureSpanVisible(new SnapshotSpan(newCaretPoint, 0));
     }
 
     /// <summary>

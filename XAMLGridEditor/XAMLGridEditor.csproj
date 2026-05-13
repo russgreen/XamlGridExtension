@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <Nullable>enable</Nullable>
-    <LangVersion>14</LangVersion>
+    <LangVersion>latest</LangVersion>
     <UseWpf>true</UseWpf>
 
     <!-- VSIX settings -->
