@@ -41,12 +41,12 @@ This keeps changes undoable and aligned with the current editor buffer.
 
 ### Context menu commands
 
-In the XAML editor, right-click while the caret is inside a `Grid` to access:
+In the XAML editor, right-click while the caret is inside a `Grid`, then open the `XAML Grid Editor` submenu:
 
-- `Insert Row Before`
-- `Insert Column Before`
-- `Remove Current Row`
-- `Remove Current Column`
+- `Insert Row Before` (inserts before the `RowDefinition` at the caret, or before row `0` if the caret is not on a row definition)
+- `Insert Column Before` (inserts before the `ColumnDefinition` at the caret, or before column `0` if the caret is not on a column definition)
+- `Remove Current Row` (currently removes row `0`)
+- `Remove Current Column` (currently removes column `0`)
 
 These commands are hidden when the caret is not inside a grid.
 
@@ -100,10 +100,11 @@ Inserting a row before row `1` updates the grid definitions and shifts children 
 - `XAMLGridEditor` - Visual Studio extension project and tool window UI
 - `XAMLGridEditor.Core` - XAML parsing and grid manipulation logic
 - `XAMLGridEditor.Tests` - MSTest coverage for parser and manipulation behavior
+- `XAMLGridEditor.vscode` - VSCode version of the extension
 
 ## Requirements
 
-- Visual Studio 2026 or a compatible Visual Studio installation matching the VSIX manifest target range
+- Visual Studio 2022 17.14+ (Community/Professional/Enterprise) on amd64, or a compatible newer Visual Studio version matching the VSIX manifest target range
 - .NET Framework 4.8 SDK/runtime for building the projects
 
 ## Build and run locally
@@ -128,7 +129,7 @@ Run the test project from Test Explorer or with your usual .NET test workflow.
 
 ## Current scope
 
-This project focuses on structural `Grid` editing in XAML documents inside Visual Studio. It does not attempt to be a full visual designer; instead, it provides targeted editing commands that keep grid-related attached properties in sync.
+This repository contains a **Visual Studio extension (VSIX)** focused on structural `Grid` editing in XAML documents. It does not attempt to be a full visual designer; instead, it provides targeted editing commands that keep grid-related attached properties in sync.
 
 ## Repository status
 
