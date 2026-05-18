@@ -133,4 +133,4 @@ This repository contains a **Visual Studio extension (VSIX)** focused on structu
 
 ## Repository status
 
-This repository contains the source for the extension, including the Visual Studio package, core manipulation engine, and automated tests. 
+This repository contains the source for the extension, including the Visual Studio package, core manipulation engine, and automated tests. Compiled extensions available in the Visual Studio Marketplace for Visual Studio and VS Code.
